@@ -3,5 +3,5 @@
 package main
 
 const (
-	configPath = "/usr/local/etc/keyreader.conf"
+	configPath = "/usr/local/etc/rambler/keyreader.conf"
 )
