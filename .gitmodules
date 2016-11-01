@@ -1,0 +1,12 @@
+[submodule "vendor/github.com/iavael/goutil"]
+	path = vendor/github.com/iavael/goutil
+	url = https://github.com/iavael/goutil
+[submodule "vendor/gopkg.in/asn1-ber.v1"]
+	path = vendor/gopkg.in/asn1-ber.v1
+	url = https://gopkg.in/asn1-ber.v1
+[submodule "vendor/gopkg.in/ldap.v2"]
+	path = vendor/gopkg.in/ldap.v2
+	url = https://gopkg.in/ldap.v2
+[submodule "vendor/gopkg.in/yaml.v2"]
+	path = vendor/gopkg.in/yaml.v2
+	url = https://gopkg.in/yaml.v2
