@@ -8,7 +8,7 @@ package main
 #include <netdb.h>
 
 static int innetgroup(const char* netgroup, const char* host) {
-	return innetgr(netgroup, host, NULL, NULL);
+	return innetgr(netgroup, host, 0, 0);
 }
 */
 import "C"
