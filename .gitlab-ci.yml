@@ -4,7 +4,7 @@ types:
   - test
 
 before_script:
- - apt-get -qq update && apt-get -y install git-core build-essential; go get -d -t
+ - apt-get -qq update && apt-get -qy install git-core; go get -d -t
 
 test:
   type: test
