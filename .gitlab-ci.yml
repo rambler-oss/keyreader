@@ -1,0 +1,14 @@
+image: golang:alpine
+
+types:
+  - test
+
+before_script:
+ - apk add --no-cache git; go get -d -t; apk del --no-cache git
+
+test:
+  type: test
+  script:
+    - go test -v
+  only:
+    - master
