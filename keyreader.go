@@ -7,17 +7,9 @@ import (
 	"log"
 	"log/syslog"
 	"os"
-	"strings"
 
 	u "github.com/iavael/goutil"
 	"gopkg.in/ldap.v2"
-)
-
-type TrustModel uint8
-
-const (
-	FULL_ACCESS TrustModel = iota
-	BY_HOST
 )
 
 const (
@@ -27,10 +19,8 @@ const (
 )
 
 var (
-	config   Config
-	logger   *u.Logger
-	hostname string
-	username string
+	config Config
+	logger *u.Logger
 
 	ldconn *ldap.Conn
 )
@@ -40,6 +30,14 @@ func init() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
 		flag.PrintDefaults()
 	}
+}
+
+func main() {
+	var (
+		host    Host
+		user    string
+		hfilter string
+	)
 
 	if slog, err := syslog.New(syslog.LOG_DAEMON, "keyreader"); err != nil {
 		log.Fatalf("Failed to create new syslog: %s", err)
@@ -50,7 +48,7 @@ func init() {
 	// Predefine some config options
 	config.LdapStartTLS = true
 
-	if err := u.NewConfig(configPath, &config, []int{1}); err != nil {
+	if err := u.NewConfig(configPath, &config, []int{2}); err != nil {
 		logger.Error("Config file error: %s", err)
 		os.Exit(10)
 	}
@@ -64,7 +62,7 @@ func init() {
 		logger.Error(err.Error())
 		os.Exit(12)
 	} else {
-		hostname = name
+		host.name = name
 	}
 
 	if len(os.Args) < 2 {
@@ -76,40 +74,48 @@ func init() {
 		logger.Error("Empty username")
 		os.Exit(14)
 	}
-	username = os.Args[1]
-}
+	user = os.Args[1]
 
-func main() {
-	var (
-		hfilter string
-	)
+	connected := -1
 
-	if conn, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", config.LdapHost, config.LdapPort)); err != nil {
-		logger.Error(err.Error())
-		os.Exit(15)
-	} else {
-		defer conn.Close()
-		ldconn = conn
-	}
-
-	if config.LdapStartTLS {
-		if err := ldconn.StartTLS(&tls.Config{InsecureSkipVerify: config.LdapNoTlsVerify}); err != nil {
+	for _, server := range config.LdapServers {
+		if conn, err := ldap.Dial("tcp", server); err != nil {
 			logger.Error(err.Error())
-			os.Exit(16)
+			connected = 15
+			continue
+		} else {
+			if config.LdapStartTLS {
+				if err := ldconn.StartTLS(&tls.Config{InsecureSkipVerify: config.LdapIgnoreCert}); err != nil {
+					logger.Error(err.Error())
+					conn.Close()
+					connected = 16
+					continue
+				}
+			}
+
+			if err := ldconn.Bind(config.LdapBind, config.LdapPass); err != nil {
+				logger.Error(err.Error())
+				conn.Close()
+				connected = 17
+				continue
+			}
+			ldconn = conn
+			defer ldconn.Close()
+			connected = 0
 		}
+
 	}
 
-	if err := ldconn.Bind(config.LdapBind, config.LdapPass); err != nil {
-		logger.Error(err.Error())
-		os.Exit(17)
+	if connected != 0 {
+		os.Exit(connected)
 	}
 
-	hfilter = fmt.Sprintf(HST_FILTER, hostname)
+	hfilter = fmt.Sprintf(HST_FILTER, host.name)
 
 	grpReq := ldap.NewSearchRequest(
 		config.LdapGroups,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf(GRP_FILTER, username, hfilter),
+		fmt.Sprintf(GRP_FILTER, user, hfilter),
 		[]string{"trustModel", "accessTo"},
 		nil,
 	)
@@ -119,7 +125,7 @@ func main() {
 		os.Exit(18)
 	} else {
 		if len(sr.Entries) > 0 {
-			if checkAccess(sr.Entries) {
+			if checkAccess(user, host, sr.Entries) {
 				hfilter = ""
 			}
 		}
@@ -128,7 +134,7 @@ func main() {
 	usrReq := ldap.NewSearchRequest(
 		config.LdapUsers,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf(USR_FILTER, username, hfilter),
+		fmt.Sprintf(USR_FILTER, user, hfilter),
 		[]string{"trustModel", "accessTo", "sshPublicKey"},
 		nil,
 	)
@@ -137,9 +143,9 @@ func main() {
 		logger.Error(err.Error())
 		os.Exit(19)
 	} else if len(sr.Entries) > 1 {
-		logger.Warn("More than 1 user with uid %s, aborting", username)
+		logger.Warn("More than 1 user with uid %s, aborting", user)
 	} else if len(sr.Entries) > 0 {
-		if len(hfilter) != 0 && !checkAccess(sr.Entries) {
+		if len(hfilter) != 0 && !checkAccess(user, host, sr.Entries) {
 			return
 		}
 		for _, key := range sr.Entries[0].GetAttributeValues("sshPublicKey") {
@@ -147,49 +153,4 @@ func main() {
 		}
 	}
 
-}
-
-func checkAccess(entries []*ldap.Entry) bool {
-	var (
-		tmodel TrustModel
-	)
-
-	for _, entry := range entries {
-		if tm := entry.GetAttributeValues("trustModel"); len(tm) > 1 {
-			logger.Warn("More than 1 trustModel attribute in DN %s, skipping", entry.DN)
-			continue
-		} else if len(tm) == 1 {
-
-			switch strings.ToLower(tm[0]) {
-			case "fullaccess":
-				tmodel = FULL_ACCESS
-			case "byhost":
-				tmodel = BY_HOST
-			}
-		} else {
-			tmodel = BY_HOST
-		}
-
-		if tmodel == FULL_ACCESS {
-			logger.Info("Granting access to user %s by FullAccess trustmodel", username)
-			return true
-		}
-
-		if tmodel == BY_HOST {
-			var netgroups []string
-			for _, acl := range entry.GetAttributeValues("accessTo") {
-				if strings.HasPrefix(acl, "+") {
-					netgroups = append(netgroups, acl[1:])
-				} else if acl == hostname {
-					logger.Info("Granting access to user %s by ByHost trustmodel", username)
-					return true
-				}
-			}
-			if inNetGroups(ldconn, netgroups) {
-				logger.Info("Granting access to user %s by ByHost trustmodel", username)
-				return true
-			}
-		}
-	}
-	return false
 }
