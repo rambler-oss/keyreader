@@ -1,0 +1,8 @@
+language: go
+
+addons:
+  code_climate:
+    repo_token: b217597eff41f5f6db4090ce3a35647513c4cd588598daf28eed8fed925de2a4
+
+go:
+  - 1.7
