@@ -1,8 +1,9 @@
-version: 1
-ldap_host: ldap.example.com
-ldap_port: 389
+version: 2
+ldap_servers:
+  - ldap1.example.com:389
+  - ldap2.example.com:389
 ldap_starttls: true
-ldap_skip_cert_verify: false
+ldap_ignorecert: false
 ldap_bind: cn=user,dc=example,dc=com
 ldap_pass: verysecretpassword
 ldap_base_users: ou=users,dc=example,dc=com
