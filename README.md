@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/rambler-oss/keyreader.svg?branch=master)](https://travis-ci.org/rambler-oss/keyreader)
+[![Code Climate](https://codeclimate.com/github/rambler-oss/keyreader/badges/gpa.svg)](https://codeclimate.com/github/rambler-oss/keyreader)
+
 SSH keyreader with authorization via LDAP
 =========================================
 

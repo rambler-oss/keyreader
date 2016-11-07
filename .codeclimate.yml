@@ -1,0 +1,9 @@
+engines:
+  golint:
+    enabled: true
+  gofmt:
+    enabled: true
+
+ratings:
+  paths:
+    - "**.go"
