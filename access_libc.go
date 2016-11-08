@@ -4,7 +4,7 @@ package main
 
 /*
 #cgo LDFLAGS: -lc
-#include <malloc.h>
+#include <stdlib.h>
 #include <netdb.h>
 
 static int innetgroup(const char* netgroup, const char* host) {
