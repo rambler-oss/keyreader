@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/syslog"
 	"os"
+	"strings"
 
 	u "github.com/iavael/goutil"
 	"gopkg.in/ldap.v2"
@@ -19,6 +20,8 @@ const (
 )
 
 var (
+	confpath string
+
 	config Config
 	logger *u.Logger
 
@@ -30,6 +33,10 @@ func init() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
 		flag.PrintDefaults()
 	}
+
+	flag.StringVar(&confpath, "config", configPath, "Path to config file")
+	flag.Parse()
+
 }
 
 func main() {
@@ -48,7 +55,7 @@ func main() {
 	// Predefine some config options
 	config.LdapStartTLS = true
 
-	if err := u.NewConfig(configPath, &config, []int{2}); err != nil {
+	if err := u.NewConfig(confpath, &config, []int{2}); err != nil {
 		logger.Error("Config file error: %s", err)
 		os.Exit(10)
 	}
@@ -65,16 +72,16 @@ func main() {
 		host.name = name
 	}
 
-	if len(os.Args) < 2 {
+	if len(flag.Args()) < 1 {
 		logger.Error("Need user name in argv[1]")
 		os.Exit(13)
 	}
 
-	if len(os.Args[1]) == 0 {
+	if len(flag.Args()[0]) == 0 {
 		logger.Error("Empty username")
 		os.Exit(14)
 	}
-	user = os.Args[1]
+	user = flag.Args()[0]
 
 	connected := -1
 
@@ -85,7 +92,7 @@ func main() {
 			continue
 		} else {
 			if config.LdapStartTLS {
-				if err := ldconn.StartTLS(&tls.Config{InsecureSkipVerify: config.LdapIgnoreCert}); err != nil {
+				if err := conn.StartTLS(&tls.Config{InsecureSkipVerify: config.LdapIgnoreCert, ServerName: strings.Split(server, ":")[0]}); err != nil {
 					logger.Error(err.Error())
 					conn.Close()
 					connected = 16
@@ -93,7 +100,7 @@ func main() {
 				}
 			}
 
-			if err := ldconn.Bind(config.LdapBind, config.LdapPass); err != nil {
+			if err := conn.Bind(config.LdapBind, config.LdapPass); err != nil {
 				logger.Error(err.Error())
 				conn.Close()
 				connected = 17
