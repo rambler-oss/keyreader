@@ -1,4 +1,4 @@
-// +build cgo
+// +build libc,!ldap cgo,!freebsd,!ldap
 
 package main
 
@@ -16,6 +16,16 @@ import "C"
 import (
 	"unsafe"
 )
+
+func (h Host) inNetGroups(netgroups []string) bool {
+	for _, netgroup := range netgroups {
+		if nssInNetGr(h.name, netgroup) {
+			logger.Info("Found host %s in netgroup %s", h.name, netgroup)
+			return true
+		}
+	}
+	return false
+}
 
 func nssInNetGr(host, netgroup string) bool {
 	logger.Debug("Checking %s for membership in %s", host, netgroup)

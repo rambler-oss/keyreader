@@ -28,16 +28,6 @@ func (h Host) matchAcl(acl string) bool {
 	return h.name == acl
 }
 
-func (h Host) inNetGroups(netgroups []string) bool {
-	for _, netgroup := range netgroups {
-		if nssInNetGr(h.name, netgroup) {
-			logger.Info("Found host %s in netgroup %s", h.name, netgroup)
-			return true
-		}
-	}
-	return false
-}
-
 func checkAccess(user string, host hostInterface, entries []*ldap.Entry) bool {
 	var (
 		tmodel TrustModel
