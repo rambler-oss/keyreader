@@ -38,7 +38,6 @@ func checkAccess(user string, host hostInterface, entries []*ldap.Entry) bool {
 			logger.Warn("More than 1 trustModel attribute in DN %s, skipping", entry.DN)
 			continue
 		} else if len(tm) == 1 {
-
 			switch strings.ToLower(tm[0]) {
 			case "fullaccess":
 				tmodel = tmFull

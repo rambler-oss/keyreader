@@ -43,17 +43,13 @@ func TestAccess(t *testing.T) {
 
 	test = ldap.NewEntry("cn=test", map[string][]string{
 		"trustModel": {"byHost"},
-		"accessTo": {
-			"example.com",
-		},
+		"accessTo":   {"example.com"},
 	})
 	assert.True(checkAccess("user", HostTest{"example.com"}, []*ldap.Entry{test}))
 
 	test = ldap.NewEntry("cn=test", map[string][]string{
 		"trustModel": {"byHost"},
-		"accessTo": {
-			"example.net",
-		},
+		"accessTo":   {"example.net"},
 	})
 	assert.False(checkAccess("user", HostTest{"example.com"}, []*ldap.Entry{test}))
 }

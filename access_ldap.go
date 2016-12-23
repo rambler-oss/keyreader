@@ -62,8 +62,10 @@ func (h Host) inNetGroups(netgroups []string) bool {
 								logger.Warn("Wildcard host in triple %s of netgroup %s", triple, netgr)
 								continue
 							} else if matches[1] == h.name {
+								logger.Info("Found host %s in netgroup %s", h.name, netgr)
 								return true
 							}
+							logger.Debug("No host %s in netgroup %s", h.name, netgr)
 						}
 					}
 				}
