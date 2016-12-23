@@ -2,7 +2,7 @@ language: go
 
 addons:
   code_climate:
-    repo_token: b217597eff41f5f6db4090ce3a35647513c4cd588598daf28eed8fed925de2a4
+    repo_token: fa1a20986baa402b8207a493bdcbd94e6c5d6ab7296ed50f8577f35fa831d3f3
 
 go:
   - 1.7
