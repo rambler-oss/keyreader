@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	GRP_FILTER = "(&(objectclass=posixGroup)(memberUid=%s)%s)"
-	USR_FILTER = "(&(objectclass=posixAccount)(uid=%s)%s)"
-	HST_FILTER = "(|(trustmodel=fullaccess)(accessTo=+*)(accessTo=%s))"
+	grpFilter = "(&(objectclass=posixGroup)(memberUid=%s)%s)"
+	usrFilter = "(&(objectclass=posixAccount)(uid=%s)%s)"
+	aclFilter = "(|(trustmodel=fullaccess)(accessTo=+*)(accessTo=%s))"
 )
 
 var (
@@ -117,12 +117,12 @@ func main() {
 		os.Exit(connected)
 	}
 
-	hfilter = fmt.Sprintf(HST_FILTER, host.name)
+	hfilter = fmt.Sprintf(aclFilter, host.name)
 
 	grpReq := ldap.NewSearchRequest(
 		config.LdapGroups,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf(GRP_FILTER, user, hfilter),
+		fmt.Sprintf(grpFilter, user, hfilter),
 		[]string{"trustModel", "accessTo"},
 		nil,
 	)
@@ -141,7 +141,7 @@ func main() {
 	usrReq := ldap.NewSearchRequest(
 		config.LdapUsers,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf(USR_FILTER, user, hfilter),
+		fmt.Sprintf(usrFilter, user, hfilter),
 		[]string{"trustModel", "accessTo", "sshPublicKey"},
 		nil,
 	)

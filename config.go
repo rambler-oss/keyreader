@@ -18,24 +18,24 @@ type Config struct {
 }
 
 // GetVer function returns config file version
-func (self *Config) GetVer() int {
-	return self.Version
+func (c *Config) GetVer() int {
+	return c.Version
 }
 
 // Check function validates config
-func (self *Config) Check() error {
+func (c *Config) Check() error {
 	switch {
-	case len(self.LdapServers) == 0:
+	case len(c.LdapServers) == 0:
 		return errors.New("No ldap servers defined")
-	case len(self.LdapBind) == 0:
+	case len(c.LdapBind) == 0:
 		return errors.New("No ldap bind defined")
-	case len(self.LdapPass) == 0:
+	case len(c.LdapPass) == 0:
 		return errors.New("No ldap password defined")
-	case len(self.LdapUsers) == 0:
+	case len(c.LdapUsers) == 0:
 		return errors.New("No ldap base for users defined")
-	case len(self.LdapGroups) == 0:
+	case len(c.LdapGroups) == 0:
 		return errors.New("No ldap base for posix groups defined")
-	case len(self.LdapNetGrs) == 0:
+	case len(c.LdapNetGrs) == 0:
 		return errors.New("No ldap base for netgroups defined")
 	}
 	return nil

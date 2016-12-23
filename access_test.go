@@ -12,7 +12,7 @@ type HostTest struct {
 	hostname string
 }
 
-func (_ HostTest) inNetGroups(_ []string) bool {
+func (ht HostTest) inNetGroups(_ []string) bool {
 	return false
 }
 
