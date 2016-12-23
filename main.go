@@ -38,9 +38,8 @@ func init() {
 
 func main() {
 	var (
-		host     Host
-		user     string
-		aclCheck = true
+		host Host
+		user string
 	)
 
 	if slog, err := syslog.New(syslog.LOG_DAEMON, "keyreader"); err != nil {
@@ -59,7 +58,9 @@ func main() {
 		os.Exit(11)
 	}
 
-	if name, err := os.Hostname(); err != nil {
+	if len(config.Hostname) != 0 {
+		host.name = config.Hostname
+	} else if name, err := os.Hostname(); err != nil {
 		logger.Error(err.Error())
 		os.Exit(12)
 	} else {
@@ -84,6 +85,13 @@ func main() {
 		defer ldconn.Close()
 	}
 
+	for _, key := range checkUser(user, &host) {
+		os.Stdout.WriteString(key)
+		os.Stdout.WriteString("\n")
+	}
+}
+
+func checkGroup(user string, host *Host) bool {
 	grpReq := ldap.NewSearchRequest(
 		config.LdapGroups,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
@@ -97,17 +105,22 @@ func main() {
 		os.Exit(18)
 	} else {
 		if len(sr.Entries) > 0 {
-			if checkAccess(user, host, sr.Entries) {
+			if !checkAccess(user, host, sr.Entries) {
 				// Just get keys, don't check user's accessTo
-				aclCheck = false
+				return true
 			}
 		}
 	}
+	return false
+}
 
+func checkUser(user string, host *Host) []string {
+	// Don't check user's acl if their group has permission
+	noUsrAcl := checkGroup(user, host)
 	usrReq := ldap.NewSearchRequest(
 		config.LdapUsers,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		usrFilter(user, host.name, aclCheck),
+		usrFilter(user, host.name, noUsrAcl),
 		[]string{"trustModel", "accessTo", "sshPublicKey"},
 		nil,
 	)
@@ -118,14 +131,11 @@ func main() {
 	} else if len(sr.Entries) > 1 {
 		logger.Warn("More than 1 user with uid %s, aborting", user)
 	} else if len(sr.Entries) > 0 {
-		if aclCheck && !checkAccess(user, host, sr.Entries) {
-			return
-		}
-		for _, key := range sr.Entries[0].GetAttributeValues("sshPublicKey") {
-			os.Stdout.WriteString(key)
-			os.Stdout.WriteString("\n")
+		if noUsrAcl || checkAccess(user, host, sr.Entries) {
+			return sr.Entries[0].GetAttributeValues("sshPublicKey")
 		}
 	}
+	return nil
 }
 
 func connLdap() (ldap.Client, int) {
@@ -158,9 +168,9 @@ func connLdap() (ldap.Client, int) {
 	return nil, code
 }
 
-func usrFilter(user, host string, aclcheck bool) string {
+func usrFilter(user, host string, noUsrAcl bool) string {
 	var filter string
-	if aclcheck {
+	if !noUsrAcl {
 		filter = aclFilter(host)
 	}
 	return u.StrCat("(&(objectclass=posixAccount)(uid=", user, ")", filter, ")")
