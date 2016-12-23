@@ -2,13 +2,16 @@ package main
 
 import (
 	"crypto/tls"
+	"errors"
 	"flag"
 	"log"
 	"log/syslog"
 	"os"
+	"strconv"
 	"strings"
 
 	u "github.com/iavael/goutil"
+	"golang.org/x/crypto/ssh"
 	"gopkg.in/ldap.v2"
 )
 
@@ -86,10 +89,35 @@ func main() {
 		defer ldconn.Close()
 	}
 
-	for _, key := range checkUser(user, &host) {
-		os.Stdout.WriteString(key)
-		os.Stdout.WriteString("\n")
+	for i, key := range checkUser(user, &host) {
+		if err := printKey(i, key); err != nil {
+			logger.Warn(err.Error())
+		}
 	}
+}
+
+func printKey(i int, key string) error {
+	if config.OnlyWithFrom {
+		if _, _, opts, rest, err := ssh.ParseAuthorizedKey([]byte(key)); err != nil {
+			return err
+		} else if len(rest) != 0 {
+			return errors.New(u.StrCat("SSHKey element #", strconv.Itoa(i), " has more than 1 key"))
+		} else {
+			fromFound := false
+			for _, opt := range opts {
+				if strings.HasPrefix(opt, "from=") {
+					fromFound = true
+					break
+				}
+			}
+			if !fromFound {
+				return errors.New(u.StrCat("No host is bound to ssh key ", key))
+			}
+		}
+	}
+	os.Stdout.WriteString(key)
+	os.Stdout.WriteString("\n")
+	return nil
 }
 
 func checkGroup(user string, host *Host) bool {

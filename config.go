@@ -8,6 +8,7 @@ import (
 type Config struct {
 	Version        int      `yaml:"version"`
 	Hostname       string   `yaml:"hostname"`
+	OnlyWithFrom   bool     `yaml:"onlywithfrom"`
 	LdapServers    []string `yaml:"ldap_servers"`
 	LdapStartTLS   bool     `yaml:"ldap_starttls"`
 	LdapIgnoreCert bool     `yaml:"ldap_ignorecert"`
