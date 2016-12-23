@@ -20,8 +20,6 @@ const (
 )
 
 var (
-	confpath string
-
 	config Config
 	logger *u.Logger
 
@@ -29,6 +27,8 @@ var (
 )
 
 func init() {
+	var confpath string
+
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
 		flag.PrintDefaults()
@@ -36,15 +36,6 @@ func init() {
 
 	flag.StringVar(&confpath, "config", configPath, "Path to config file")
 	flag.Parse()
-
-}
-
-func main() {
-	var (
-		host    Host
-		user    string
-		hfilter string
-	)
 
 	if slog, err := syslog.New(syslog.LOG_DAEMON, "keyreader"); err != nil {
 		log.Fatalf("Failed to create new syslog: %s", err)
@@ -64,6 +55,14 @@ func main() {
 		logger.Error("Config file error: %s", err)
 		os.Exit(11)
 	}
+}
+
+func main() {
+	var (
+		host    Host
+		user    string
+		hfilter string
+	)
 
 	if name, err := os.Hostname(); err != nil {
 		logger.Error(err.Error())
@@ -83,38 +82,8 @@ func main() {
 	}
 	user = flag.Args()[0]
 
-	connected := -1
-
-	for _, server := range config.LdapServers {
-		if conn, err := ldap.Dial("tcp", server); err != nil {
-			logger.Error(err.Error())
-			connected = 15
-			continue
-		} else {
-			if config.LdapStartTLS {
-				if err := conn.StartTLS(&tls.Config{InsecureSkipVerify: config.LdapIgnoreCert, ServerName: strings.Split(server, ":")[0]}); err != nil {
-					logger.Error(err.Error())
-					conn.Close()
-					connected = 16
-					continue
-				}
-			}
-
-			if err := conn.Bind(config.LdapBind, config.LdapPass); err != nil {
-				logger.Error(err.Error())
-				conn.Close()
-				connected = 17
-				continue
-			}
-			ldconn = conn
-			defer ldconn.Close()
-			connected = 0
-		}
-
-	}
-
-	if connected != 0 {
-		os.Exit(connected)
+	if code := connLdap(); code != 0 {
+		os.Exit(code)
 	}
 
 	hfilter = fmt.Sprintf(aclFilter, host.name)
@@ -159,5 +128,36 @@ func main() {
 			fmt.Println(key)
 		}
 	}
+}
 
+func connLdap() int {
+	var connected = -1
+
+	for _, server := range config.LdapServers {
+		if conn, err := ldap.Dial("tcp", server); err != nil {
+			logger.Error(err.Error())
+			connected = 15
+			continue
+		} else {
+			if config.LdapStartTLS {
+				if err := conn.StartTLS(&tls.Config{InsecureSkipVerify: config.LdapIgnoreCert, ServerName: strings.Split(server, ":")[0]}); err != nil {
+					logger.Error(err.Error())
+					conn.Close()
+					connected = 16
+					continue
+				}
+			}
+
+			if err := conn.Bind(config.LdapBind, config.LdapPass); err != nil {
+				logger.Error(err.Error())
+				conn.Close()
+				connected = 17
+				continue
+			}
+			ldconn = conn
+			defer ldconn.Close()
+			connected = 0
+		}
+	}
+	return connected
 }
