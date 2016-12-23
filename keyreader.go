@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/tls"
 	"flag"
-	"fmt"
 	"log"
 	"log/syslog"
 	"os"
@@ -13,19 +12,13 @@ import (
 	"gopkg.in/ldap.v2"
 )
 
-const (
-	grpFilter = "(&(objectclass=posixGroup)(memberUid=%s)%s)"
-	usrFilter = "(&(objectclass=posixAccount)(uid=%s)%s)"
-	aclFilter = "(|(trustmodel=fullaccess)(accessTo=+*)(accessTo=%s))"
-)
-
 var (
 	confpath string
 
 	config Config
 	logger *u.Logger
 
-	ldconn *ldap.Conn
+	ldconn ldap.Client
 )
 
 func init() {
@@ -39,22 +32,22 @@ func init() {
 	flag.StringVar(&confpath, "config", configPath, "Path to config file")
 	flag.Parse()
 
-	if slog, err := syslog.New(syslog.LOG_DAEMON, "keyreader"); err != nil {
-		log.Fatalf("Failed to create new syslog: %s", err)
-	} else {
-		logger = u.NewLogger(u.INFO, slog)
-	}
-
 	// Predefine some config options
 	config.LdapStartTLS = true
 }
 
 func main() {
 	var (
-		host    Host
-		user    string
-		hfilter string
+		host     Host
+		user     string
+		aclCheck = true
 	)
+
+	if slog, err := syslog.New(syslog.LOG_DAEMON, "keyreader"); err != nil {
+		log.Fatalf("Failed to create new syslog: %s", err)
+	} else {
+		logger = u.NewLogger(u.INFO, slog)
+	}
 
 	if err := u.NewConfig(confpath, &config, []int{2}); err != nil {
 		logger.Error("Config file error: %s", err)
@@ -84,16 +77,17 @@ func main() {
 	}
 	user = flag.Args()[0]
 
-	if code := connLdap(); code != 0 {
+	if conn, code := connLdap(); code != 0 {
 		os.Exit(code)
+	} else {
+		ldconn = conn
+		defer ldconn.Close()
 	}
-
-	hfilter = fmt.Sprintf(aclFilter, host.name)
 
 	grpReq := ldap.NewSearchRequest(
 		config.LdapGroups,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf(grpFilter, user, hfilter),
+		grpFilter(user, host.name),
 		[]string{"trustModel", "accessTo"},
 		nil,
 	)
@@ -104,7 +98,8 @@ func main() {
 	} else {
 		if len(sr.Entries) > 0 {
 			if checkAccess(user, host, sr.Entries) {
-				hfilter = ""
+				// Just get keys, don't check user's accessTo
+				aclCheck = false
 			}
 		}
 	}
@@ -112,7 +107,7 @@ func main() {
 	usrReq := ldap.NewSearchRequest(
 		config.LdapUsers,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf(usrFilter, user, hfilter),
+		usrFilter(user, host.name, aclCheck),
 		[]string{"trustModel", "accessTo", "sshPublicKey"},
 		nil,
 	)
@@ -123,29 +118,30 @@ func main() {
 	} else if len(sr.Entries) > 1 {
 		logger.Warn("More than 1 user with uid %s, aborting", user)
 	} else if len(sr.Entries) > 0 {
-		if len(hfilter) != 0 && !checkAccess(user, host, sr.Entries) {
+		if aclCheck && !checkAccess(user, host, sr.Entries) {
 			return
 		}
 		for _, key := range sr.Entries[0].GetAttributeValues("sshPublicKey") {
 			os.Stdout.WriteString(key)
+			os.Stdout.WriteString("\n")
 		}
 	}
 }
 
-func connLdap() int {
-	var connected = -1
+func connLdap() (ldap.Client, int) {
+	var code = -1
 
 	for _, server := range config.LdapServers {
 		if conn, err := ldap.Dial("tcp", server); err != nil {
 			logger.Error(err.Error())
-			connected = 15
+			code = 15
 			continue
 		} else {
 			if config.LdapStartTLS {
 				if err := conn.StartTLS(&tls.Config{InsecureSkipVerify: config.LdapIgnoreCert, ServerName: strings.Split(server, ":")[0]}); err != nil {
 					logger.Error(err.Error())
 					conn.Close()
-					connected = 16
+					code = 16
 					continue
 				}
 			}
@@ -153,13 +149,27 @@ func connLdap() int {
 			if err := conn.Bind(config.LdapBind, config.LdapPass); err != nil {
 				logger.Error(err.Error())
 				conn.Close()
-				connected = 17
+				code = 17
 				continue
 			}
-			ldconn = conn
-			defer ldconn.Close()
-			connected = 0
+			return conn, 0
 		}
 	}
-	return connected
+	return nil, code
+}
+
+func usrFilter(user, host string, aclcheck bool) string {
+	var filter string
+	if aclcheck {
+		filter = aclFilter(host)
+	}
+	return u.StrCat("(&(objectclass=posixAccount)(uid=", user, ")", filter, ")")
+}
+
+func grpFilter(user, host string) string {
+	return u.StrCat("(&(objectclass=posixGroup)(memberUid=", user, ")", aclFilter(host), ")")
+}
+
+func aclFilter(host string) string {
+	return u.StrCat("(|(trustmodel=fullaccess)(accessTo=+*)(accessTo=", host, "))")
 }
