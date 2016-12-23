@@ -20,6 +20,8 @@ const (
 )
 
 var (
+	confpath string
+
 	config Config
 	logger *u.Logger
 
@@ -27,8 +29,6 @@ var (
 )
 
 func init() {
-	var confpath string
-
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
 		flag.PrintDefaults()
@@ -45,6 +45,14 @@ func init() {
 
 	// Predefine some config options
 	config.LdapStartTLS = true
+}
+
+func main() {
+	var (
+		host    Host
+		user    string
+		hfilter string
+	)
 
 	if err := u.NewConfig(confpath, &config, []int{2}); err != nil {
 		logger.Error("Config file error: %s", err)
@@ -55,14 +63,6 @@ func init() {
 		logger.Error("Config file error: %s", err)
 		os.Exit(11)
 	}
-}
-
-func main() {
-	var (
-		host    Host
-		user    string
-		hfilter string
-	)
 
 	if name, err := os.Hostname(); err != nil {
 		logger.Error(err.Error())

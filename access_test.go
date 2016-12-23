@@ -29,12 +29,12 @@ func TestAccess(t *testing.T) {
 	logger = u.NewLogger(u.FATAL, nil)
 
 	test = ldap.NewEntry("cn=test", map[string][]string{
-		"trustModel": []string{"fullAccess"},
+		"trustModel": {"fullAccess"},
 	})
 	assert.True(checkAccess("user", HostTest{"example.com"}, []*ldap.Entry{test}))
 
 	test = ldap.NewEntry("cn=test", map[string][]string{
-		"trustModel": []string{"byHost"},
+		"trustModel": {"byHost"},
 	})
 	assert.False(checkAccess("user", HostTest{"example.com"}, []*ldap.Entry{test}))
 
@@ -42,16 +42,16 @@ func TestAccess(t *testing.T) {
 	assert.False(checkAccess("user", HostTest{"example.com"}, []*ldap.Entry{test}))
 
 	test = ldap.NewEntry("cn=test", map[string][]string{
-		"trustModel": []string{"byHost"},
-		"accessTo": []string{
+		"trustModel": {"byHost"},
+		"accessTo": {
 			"example.com",
 		},
 	})
 	assert.True(checkAccess("user", HostTest{"example.com"}, []*ldap.Entry{test}))
 
 	test = ldap.NewEntry("cn=test", map[string][]string{
-		"trustModel": []string{"byHost"},
-		"accessTo": []string{
+		"trustModel": {"byHost"},
+		"accessTo": {
 			"example.net",
 		},
 	})
