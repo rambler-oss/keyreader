@@ -30,7 +30,9 @@ var (
 
 func init() {
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+		os.Stderr.WriteString("Usage of ")
+		os.Stderr.WriteString(os.Args[0])
+		os.Stderr.WriteString(":\n")
 		flag.PrintDefaults()
 	}
 
@@ -125,7 +127,7 @@ func main() {
 			return
 		}
 		for _, key := range sr.Entries[0].GetAttributeValues("sshPublicKey") {
-			fmt.Println(key)
+			os.Stdout.WriteString(key)
 		}
 	}
 }

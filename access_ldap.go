@@ -3,10 +3,10 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"regexp"
 
+	u "github.com/iavael/goutil"
 	"gopkg.in/ldap.v2"
 )
 
@@ -39,7 +39,7 @@ func (h Host) inNetGroups(netgroups []string) bool {
 		netGroupReq := ldap.NewSearchRequest(
 			config.LdapNetGrs,
 			ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-			fmt.Sprintf("(cn=%s)", netgr),
+			u.StrCat("(cn=", netgr, ")"),
 			[]string{netgrMember, netgrChild},
 			nil,
 		)
