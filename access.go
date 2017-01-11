@@ -3,6 +3,7 @@ package main
 import (
 	"strings"
 
+	u "github.com/iavael/goutil"
 	"gopkg.in/ldap.v2"
 )
 
@@ -21,11 +22,11 @@ type hostInterface interface {
 
 // Host struct
 type Host struct {
-	name string
+	names []string
 }
 
 func (h Host) matchAcl(acl string) bool {
-	return h.name == acl
+	return u.MemberOfSlice(acl, h.names)
 }
 
 func checkAccess(user string, host hostInterface, entries []*ldap.Entry) bool {

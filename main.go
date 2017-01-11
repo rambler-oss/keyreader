@@ -52,7 +52,7 @@ func main() {
 		logger = u.NewLogger(u.INFO, slog)
 	}
 
-	if err := u.NewConfig(confpath, &config, []int{2}); err != nil {
+	if err := u.NewConfig(confpath, &config, []int{3}); err != nil {
 		logger.Error("Config file error: %s", err)
 		os.Exit(10)
 	}
@@ -62,13 +62,14 @@ func main() {
 		os.Exit(11)
 	}
 
-	if len(config.Hostname) != 0 {
-		host.name = config.Hostname
-	} else if name, err := os.Hostname(); err != nil {
+	if len(config.Hostnames) != 0 {
+		host.names = config.Hostnames
+	}
+	if name, err := os.Hostname(); err != nil {
 		logger.Error(err.Error())
 		os.Exit(12)
-	} else {
-		host.name = name
+	} else if !u.MemberOfSlice(name, host.names) {
+		host.names = append(host.names, name)
 	}
 
 	if len(flag.Args()) < 1 {
@@ -124,7 +125,7 @@ func checkGroup(user string, host *Host) bool {
 	grpReq := ldap.NewSearchRequest(
 		config.LdapGroups,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		grpFilter(user, host.name),
+		grpFilter(user, host.names),
 		[]string{"trustModel", "accessTo"},
 		nil,
 	)
@@ -149,7 +150,7 @@ func checkUser(user string, host *Host) []string {
 	usrReq := ldap.NewSearchRequest(
 		config.LdapUsers,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		usrFilter(user, host.name, noUsrAcl),
+		usrFilter(user, host.names, noUsrAcl),
 		[]string{"trustModel", "accessTo", "sshPublicKey"},
 		nil,
 	)
@@ -197,18 +198,28 @@ func connLdap() (ldap.Client, int) {
 	return nil, code
 }
 
-func usrFilter(user, host string, noUsrAcl bool) string {
+func usrFilter(user string, hosts []string, noUsrAcl bool) string {
 	var filter string
 	if !noUsrAcl {
-		filter = aclFilter(host)
+		filter = aclFilter(hosts)
 	}
 	return u.StrCat("(&(objectclass=posixAccount)(uid=", user, ")", filter, ")")
 }
 
-func grpFilter(user, host string) string {
-	return u.StrCat("(&(objectclass=posixGroup)(memberUid=", user, ")", aclFilter(host), ")")
+func grpFilter(user string, hosts []string) string {
+	return u.StrCat("(&(objectclass=posixGroup)(memberUid=", user, ")", aclFilter(hosts), ")")
 }
 
-func aclFilter(host string) string {
-	return u.StrCat("(|(trustmodel=fullaccess)(accessTo=+*)(accessTo=", host, ")", config.LdapFilter, ")")
+func aclFilter(hosts []string) string {
+	filter := []string{
+		"(|(trustmodel=fullaccess)(accessTo=+*)",
+	}
+	for _, host := range hosts {
+		filter = append(filter, "(accessTo=")
+		filter = append(filter, host)
+		filter = append(filter, ")")
+	}
+	filter = append(filter, config.LdapFilter)
+	filter = append(filter, ")")
+	return u.StrCatS(filter)
 }

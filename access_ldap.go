@@ -55,17 +55,19 @@ func (h Host) inNetGroups(netgroups []string) bool {
 							logger.Warn("Invalid %s triple in netgroup %s", triple, netgr)
 							continue
 						} else {
-							if matches[1] == "-" {
-								logger.Warn("Undefined host in triple %s of netgroup %s", triple, netgr)
-								continue
-							} else if matches[1] == "" {
-								logger.Warn("Wildcard host in triple %s of netgroup %s", triple, netgr)
-								continue
-							} else if matches[1] == h.name {
-								logger.Info("Found host %s in netgroup %s", h.name, netgr)
-								return true
+							for _, host := range h.names {
+								if matches[1] == "-" {
+									logger.Warn("Undefined host in triple %s of netgroup %s", triple, netgr)
+									continue
+								} else if matches[1] == "" {
+									logger.Warn("Wildcard host in triple %s of netgroup %s", triple, netgr)
+									continue
+								} else if matches[1] == host {
+									logger.Info("Found host %s in netgroup %s", host, netgr)
+									return true
+								}
+								logger.Debug("No host %s in netgroup %s", host, netgr)
 							}
-							logger.Debug("No host %s in netgroup %s", h.name, netgr)
 						}
 					}
 				}

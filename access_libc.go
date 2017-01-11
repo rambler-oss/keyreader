@@ -19,9 +19,11 @@ import (
 
 func (h Host) inNetGroups(netgroups []string) bool {
 	for _, netgroup := range netgroups {
-		if nssInNetGr(h.name, netgroup) {
-			logger.Info("Found host %s in netgroup %s", h.name, netgroup)
-			return true
+		for _, host := range h.names {
+			if nssInNetGr(host, netgroup) {
+				logger.Info("Found host %s in netgroup %s", host, netgroup)
+				return true
+			}
 		}
 	}
 	return false
