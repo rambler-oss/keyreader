@@ -210,5 +210,5 @@ func grpFilter(user, host string) string {
 }
 
 func aclFilter(host string) string {
-	return u.StrCat("(|(trustmodel=fullaccess)(accessTo=+*)(accessTo=", host, "))")
+	return u.StrCat("(|(trustmodel=fullaccess)(accessTo=+*)(accessTo=", host, ")", config.LdapFilter, ")")
 }

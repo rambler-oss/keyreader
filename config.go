@@ -17,6 +17,7 @@ type Config struct {
 	LdapUsers      string   `yaml:"ldap_base_users"`
 	LdapGroups     string   `yaml:"ldap_base_groups"`
 	LdapNetGrs     string   `yaml:"ldap_base_netgrs"`
+	LdapFilter     string   `yaml:"ldap_access_filter"`
 }
 
 // GetVer function returns config file version
