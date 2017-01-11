@@ -12,4 +12,3 @@ ldap_pass: verysecretpassword
 ldap_base_users: ou=users,dc=example,dc=com
 ldap_base_groups: ou=groups,dc=example,dc=com
 ldap_base_netgrs: ou=netgroups,dc=example,dc=com
-ldap_access_filter: "(&(objectClass=posixGroup)(cn=dev-*))" # optional

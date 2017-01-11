@@ -219,7 +219,6 @@ func aclFilter(hosts []string) string {
 		filter = append(filter, host)
 		filter = append(filter, ")")
 	}
-	filter = append(filter, config.LdapFilter)
 	filter = append(filter, ")")
 	return u.StrCatS(filter)
 }
