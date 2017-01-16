@@ -22,8 +22,8 @@ func (ht HostTest) matchAcl(acl string) bool {
 
 func TestAccess(t *testing.T) {
 	var (
-		test   *ldap.Entry
 		assert = assert.New(t)
+		test   *ldap.Entry
 	)
 
 	logger = u.NewLogger(u.FATAL, nil)
