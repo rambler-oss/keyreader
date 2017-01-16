@@ -37,7 +37,7 @@ func (h Host) inNetGroups(netgroups []string) bool {
 		netgr, nextgrps = nextgrps[0], nextgrps[1:]
 		looptest[netgr] = true
 		netGroupReq := ldap.NewSearchRequest(
-			config.LdapNetGrs,
+			config.GetLdapNetGrs(),
 			ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 			u.StrCat("(cn=", netgr, ")"),
 			[]string{netgrMember, netgrChild},

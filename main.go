@@ -34,9 +34,6 @@ func init() {
 
 	flag.StringVar(&confpath, "config", configPath, "Path to config file")
 	flag.Parse()
-
-	// Predefine some config options
-	config.LdapStartTLS = true
 }
 
 func main() {
@@ -52,18 +49,15 @@ func main() {
 		logger = u.NewLogger(u.INFO, slog)
 	}
 
-	if err := u.NewConfig(confpath, &config, []int{3}); err != nil {
+	if cfg, err := u.NewMultiConfig(confpath, &ConfigVer{}, selectConfig); err != nil {
 		logger.Error("Config file error: %s", err)
 		os.Exit(10)
+	} else {
+		config = cfg.(Config)
 	}
 
-	if err := config.Check(); err != nil {
-		logger.Error("Config file error: %s", err)
-		os.Exit(11)
-	}
-
-	if len(config.Hostnames) != 0 {
-		host.names = config.Hostnames
+	if names := config.GetHostnames(); len(names) != 0 {
+		host.names = names
 	}
 	if name, err := os.Hostname(); err != nil {
 		logger.Error(err.Error())
@@ -98,7 +92,7 @@ func main() {
 }
 
 func printKey(i int, key string) error {
-	if config.OnlyWithFrom {
+	if config.FilterByFrom() {
 		if _, _, opts, rest, err := ssh.ParseAuthorizedKey([]byte(key)); err != nil {
 			return err
 		} else if len(rest) != 0 {
@@ -123,7 +117,7 @@ func printKey(i int, key string) error {
 
 func checkGroup(user string, host *Host) bool {
 	grpReq := ldap.NewSearchRequest(
-		config.LdapGroups,
+		config.GetLdapGroups(),
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		grpFilter(user, host.names),
 		[]string{"trustModel", "accessTo"},
@@ -148,7 +142,7 @@ func checkUser(user string, host *Host) []string {
 	// Don't check user's acl if their group has permission
 	noUsrAcl := checkGroup(user, host)
 	usrReq := ldap.NewSearchRequest(
-		config.LdapUsers,
+		config.GetLdapUsers(),
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		usrFilter(user, host.names, noUsrAcl),
 		[]string{"trustModel", "accessTo", "sshPublicKey"},
@@ -165,20 +159,24 @@ func checkUser(user string, host *Host) []string {
 			return sr.Entries[0].GetAttributeValues("sshPublicKey")
 		}
 	}
+	logger.Warn("Failed to authorize user %s", user)
 	return nil
 }
 
 func connLdap() (ldap.Client, int) {
 	var code = -1
 
-	for _, server := range config.LdapServers {
+	for _, server := range config.GetLdapServers() {
 		if conn, err := ldap.Dial("tcp", server); err != nil {
 			logger.Error(err.Error())
 			code = 15
 			continue
 		} else {
-			if config.LdapStartTLS {
-				if err := conn.StartTLS(&tls.Config{InsecureSkipVerify: config.LdapIgnoreCert, ServerName: strings.Split(server, ":")[0]}); err != nil {
+			if config.GetLdapStartTLS() {
+				if err := conn.StartTLS(&tls.Config{
+					InsecureSkipVerify: config.GetLdapIgnoreCert(),
+					ServerName:         strings.Split(server, ":")[0],
+				}); err != nil {
 					logger.Error(err.Error())
 					conn.Close()
 					code = 16
@@ -186,7 +184,10 @@ func connLdap() (ldap.Client, int) {
 				}
 			}
 
-			if err := conn.Bind(config.LdapBind, config.LdapPass); err != nil {
+			if err := conn.Bind(
+				config.GetLdapBind(),
+				config.GetLdapPass(),
+			); err != nil {
 				logger.Error(err.Error())
 				conn.Close()
 				code = 17
