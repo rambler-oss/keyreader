@@ -4,12 +4,7 @@ package main
 
 /*
 #cgo LDFLAGS: -lc
-#include <stdlib.h>
 #include <netdb.h>
-
-static int innetgroup(const char* netgroup, const char* host) {
-	return innetgr(netgroup, host, 0, 0);
-}
 */
 import "C"
 
@@ -20,7 +15,7 @@ import (
 func (h Host) inNetGroups(netgroups []string) bool {
 	for _, netgroup := range netgroups {
 		for _, host := range h.names {
-			if nssInNetGr(host, netgroup) {
+			if nssInNetGr(&netgroup, &host, nil, nil) {
 				logger.Info("Found host %s in netgroup %s", host, netgroup)
 				return true
 			}
@@ -29,13 +24,13 @@ func (h Host) inNetGroups(netgroups []string) bool {
 	return false
 }
 
-func nssInNetGr(host, netgroup string) bool {
+func nssInNetGr(netgroup, host, user, domain *string) bool {
 	logger.Debug("Checking %s for membership in %s", host, netgroup)
-	cnetgr := C.CString(netgroup)
+	cnetgr := C.CString(*netgroup)
 	defer C.free(unsafe.Pointer(cnetgr))
-	chost := C.CString(host)
+	chost := C.CString(*host)
 	defer C.free(unsafe.Pointer(chost))
-	if C.innetgroup(cnetgr, chost) > 0 {
+	if C.innetgr(cnetgr, chost, user, domain) > 0 {
 		return true
 	}
 	return false
