@@ -4,6 +4,7 @@ package main
 
 /*
 #cgo LDFLAGS: -lc
+#include <stdlib.h>
 #include <netdb.h>
 */
 import "C"
