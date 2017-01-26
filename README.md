@@ -13,6 +13,7 @@ Features
     netgroups are distinguished by prepending 'plus' sign
 	(accessTo: hostname, accessTo: +netgroup)
 * Netgroups are received via libnss (you can back it to ldap by libnss-ldap or sssd)
+* Keyreader can ignore keys without "from" option
 
 How authorization works
 -----------------------
