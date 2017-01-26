@@ -7,8 +7,10 @@ import (
 	"log"
 	"log/syslog"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 
 	u "github.com/iavael/goutil"
 	"golang.org/x/crypto/ssh"
@@ -84,6 +86,7 @@ func main() {
 		defer ldconn.Close()
 	}
 
+	signal.Ignore(syscall.SIGPIPE)
 	for i, key := range checkUser(user, &host) {
 		if err := printKey(i, key); err != nil {
 			logger.Warn(err.Error())
