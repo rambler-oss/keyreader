@@ -39,3 +39,7 @@ func (c *ConfigV1) GetLdapIgnoreCert() bool {
 func (c *ConfigV1) FilterByFrom() bool {
 	return false
 }
+
+func (c *ConfigV1) GetOldDomains() []string {
+	return nil
+}

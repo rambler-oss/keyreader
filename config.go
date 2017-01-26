@@ -18,6 +18,7 @@ type Config interface {
 	GetLdapUsers() string
 	GetLdapGroups() string
 	GetLdapNetGrs() string
+	GetOldDomains() []string
 }
 
 type ConfigVer struct {
@@ -93,6 +94,11 @@ func selectConfig(ver int) u.IConfig {
 		return cfg
 	case 3:
 		cfg := &ConfigV3{}
+		cfg.LdapStartTLS = true
+		cfg.OnlyWithFrom = true
+		return cfg
+	case -1:
+		cfg := &ConfigRambler{}
 		cfg.LdapStartTLS = true
 		cfg.OnlyWithFrom = true
 		return cfg
