@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"strings"
 
 	u "github.com/iavael/goutil"
@@ -46,6 +47,12 @@ func checkAccess(user string, host hostInterface, entries []*ldap.Entry) bool {
 				tmodel = tmHost
 			}
 		} else {
+			tmodel = tmHost
+		}
+
+		// Rambler-specific kludge
+		if _, err := os.Stat(nofullFlag); !os.IsNotExist(err) && tmodel == tmFull {
+			logger.Info("Ignoring trustmodel FullAccess of user %s", user)
 			tmodel = tmHost
 		}
 
