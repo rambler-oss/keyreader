@@ -45,7 +45,8 @@ func main() {
 	)
 
 	if slog, err := syslog.New(syslog.LOG_DAEMON, "keyreader"); err != nil {
-		log.Fatalf("Failed to create new syslog: %s", err)
+		log.Printf("Failed to create new syslog: %s\n", err)
+		logger = u.NewLogger(u.NONE, nil)
 	} else {
 		defer slog.Close()
 		logger = u.NewLogger(u.INFO, slog)
