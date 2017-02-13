@@ -69,6 +69,13 @@ func main() {
 		host.names = append(host.names, name)
 	}
 
+	// Rambler-specific kludge
+	for _, group := range oldGroups() {
+		if !u.MemberOfSlice(group, host.names) {
+			host.names = append(host.names, group)
+		}
+	}
+
 	if len(flag.Args()) < 1 {
 		logger.Error("Need user name in argv[1]")
 		os.Exit(13)
