@@ -96,6 +96,13 @@ func selectConfig(ver int) u.IConfig {
 		cfg.LdapStartTLS = true
 		cfg.OnlyWithFrom = true
 		return cfg
+	// TODO Remove this
+	case -1:
+		cfg := &ConfigV3{}
+		cfg.LdapStartTLS = true
+		cfg.OnlyWithFrom = true
+		oldGroupsFlag = true
+		return cfg
 	}
 	return nil
 }
