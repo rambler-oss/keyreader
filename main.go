@@ -133,8 +133,9 @@ func checkGroup(user string, host *Host) bool {
 		os.Exit(18)
 	} else {
 		if len(sr.Entries) > 0 {
-			if !checkAccess(user, host, sr.Entries) {
+			if checkAccess(user, host, sr.Entries) {
 				// Just get keys, don't check user's accessTo
+				logger.Info("Access granted to user %s by group permissions", user)
 				return true
 			}
 		}
