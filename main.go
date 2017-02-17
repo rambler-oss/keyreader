@@ -89,6 +89,9 @@ func main() {
 
 	signal.Ignore(syscall.SIGPIPE)
 	for i, key := range checkUser(user, &host) {
+		if !strings.HasSuffix(key, "\n") {
+			key = u.StrCat(key, "\n")
+		}
 		if err := printKey(i, key); err != nil {
 			logger.Warn(err.Error())
 		}
@@ -114,9 +117,8 @@ func printKey(i int, key string) error {
 			}
 		}
 	}
-	os.Stdout.WriteString(key)
-	os.Stdout.WriteString("\n")
-	return nil
+	_, err := os.Stdout.WriteString(key)
+	return err
 }
 
 func checkGroup(user string, host *Host) bool {
