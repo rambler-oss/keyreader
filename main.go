@@ -87,7 +87,13 @@ func main() {
 		defer ldconn.Close()
 	}
 
-	signal.Ignore(syscall.SIGPIPE)
+	sigpipe := make(chan os.Signal, 1)
+	go func(sigchan <-chan os.Signal) {
+		for _ = range sigchan {
+			os.Exit(0)
+		}
+	}(sigpipe)
+	signal.Notify(sigpipe, syscall.SIGPIPE)
 	for i, key := range checkUser(user, &host) {
 		if !strings.HasSuffix(key, "\n") {
 			key = u.StrCat(key, "\n")
