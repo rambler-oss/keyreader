@@ -89,7 +89,7 @@ func main() {
 
 	sigpipe := make(chan os.Signal, 1)
 	go func(sigchan <-chan os.Signal) {
-		for _ = range sigchan {
+		for range sigchan {
 			os.Exit(0)
 		}
 	}(sigpipe)
