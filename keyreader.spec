@@ -5,13 +5,15 @@ Summary:        Rambler keyreader
 License:        LGPL3+
 URL:            https://github.com/rambler-oss/keyreader
 Source0:        https://github.com/rambler-oss/%{name}/archive/v%{version}.tar.gz
-Source1:	keyreader.conf
 
 BuildRequires:  golang >= 1.5
 BuildRequires:	git
 
+%if 0%{?fedora} >= 21
 # pull in golang libraries by explicit import path, inside the meta golang()
-# BuildRequires:  golang(gopkg.in/yaml.v2)
+BuildRequires:  golang(gopkg.in/yaml.v2)
+BuildRequires:  golang(github.com/go-ldap/ldap)
+%endif
 
 %description
 
@@ -31,8 +33,15 @@ git clone -b v1 https://github.com/go-asn1-ber/asn1-ber ./_build/src/gopkg.in/as
 
 export GOPATH=$(pwd)/_build:%{gopath}
 export CGO_ENABLED=1
+%if 0%{?redhat} || 0%{?centos}
 go get -d .
 go build -compiler gc -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \n')" -a -v -x
+%else
+%gobuild
+%endif
+
+%check
+%gotest
 
 %install
 install -d %{buildroot}%{_datadir}/keyreader
@@ -40,13 +49,9 @@ install -p -m 0755 contrib/keyreader.conf.example %{buildroot}%{_datadir}/keyrea
 install -d %{buildroot}%{_libexecdir}
 install -p -m 0755 %{name}-%{version} %{buildroot}%{_libexecdir}/keyreader
 install -d %{buildroot}%{_sysconfdir}/rambler
-touch %{buildroot}%{_sysconfdir}/rambler/oldgroup.domains
-install -p -m 0640 %SOURCE1 %{buildroot}%{_sysconfdir}/rambler/keyreader.conf
 
 %files
 %doc COPYING
-%attr(-,root,nobody) %config(noreplace) %{_sysconfdir}/rambler/keyreader.conf
-%attr(-,root,nobody) %config(noreplace) %{_sysconfdir}/rambler/oldgroup.domains
 %{_libexecdir}/keyreader
 %{_datadir}/keyreader/keyreader.conf.example
 
