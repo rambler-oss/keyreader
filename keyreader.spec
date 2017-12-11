@@ -1,5 +1,5 @@
 Name:		keyreader
-Version:	0.3.6
+Version:	0.3.7
 Release:	1%{?dist}
 Summary:	Rambler keyreader
 License:	LGPL3+
@@ -55,6 +55,8 @@ install -d %{buildroot}%{_sysconfdir}/rambler
 %{_datadir}/keyreader/keyreader.conf.example
 
 %changelog
+* Mon Dec 11 2017 Iavael <iavael@rambler-co.ru> 0.3.7-1
+- Use tito
 * Tue Feb 28 2017 Iavael <iavael@rambler-co.ru> - 0.3.6-1
 - Handle SIGPIPE properly
 
