@@ -1,26 +1,25 @@
-Name:           keyreader
-Version:        0.3.6
-Release:        1%{?dist}
-Summary:        Rambler keyreader
-License:        LGPL3+
-URL:            https://github.com/rambler-oss/keyreader
-Source0:        https://github.com/rambler-oss/%{name}/archive/v%{version}.tar.gz
+Name:		keyreader
+Version:	0.3.6
+Release:	1%{?dist}
+Summary:	Rambler keyreader
+License:	LGPL3+
+URL:		https://github.com/rambler-oss/keyreader
+# Source0:	https://github.com/rambler-oss/%{name}/archive/v%{version}.tar.gz
+Source0:	%{name}-%{version}.tar.gz
 
-BuildRequires:  golang >= 1.5
+BuildRequires:	golang >= 1.5
 BuildRequires:	git
 
 %if 0%{?fedora} >= 21
 # pull in golang libraries by explicit import path, inside the meta golang()
-BuildRequires:  golang(gopkg.in/yaml.v2)
-BuildRequires:  golang(github.com/go-ldap/ldap)
+BuildRequires:	golang(gopkg.in/yaml.v2)
+BuildRequires:	golang(github.com/go-ldap/ldap)
 %endif
 
 %description
 
 %prep
 %setup -q -n %{name}-%{version}
-%patch0 -p1 -b .oldgroups-compat
-%patch1 -p1 -b .ignore-fullaccess
 
 %build
 mkdir -p ./_build/src/github.com/rambler-oss/keyreader
