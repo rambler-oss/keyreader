@@ -83,14 +83,6 @@ func (c *ConfigBase) GetLdapNetGrs() string {
 
 func selectConfig(ver int) u.IConfig {
 	switch ver {
-	case 1:
-		cfg := &ConfigV1{}
-		cfg.LdapStartTLS = true
-		return cfg
-	case 2:
-		cfg := &ConfigV2{}
-		cfg.LdapStartTLS = true
-		return cfg
 	case 3:
 		cfg := &ConfigV3{}
 		cfg.LdapStartTLS = true
