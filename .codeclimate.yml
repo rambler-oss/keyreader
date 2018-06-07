@@ -1,4 +1,6 @@
-engines:
+plugins:
+  markdownlint:
+    enabled: true
   golint:
     enabled: true
   gofmt:
