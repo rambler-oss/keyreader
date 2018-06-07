@@ -12,7 +12,6 @@ env:
     - GO_TAGS=libc
     - GO_TAGS=ldap
 go:
-  - "1.9"
   - "1.10"
 
 before_script:
