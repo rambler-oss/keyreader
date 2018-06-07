@@ -96,7 +96,7 @@ func main() {
 	signal.Notify(sigpipe, syscall.SIGPIPE)
 	for i, key := range checkUser(user, &host) {
 		if !strings.HasSuffix(key, "\n") {
-			key = u.StrCat(key, "\n")
+			key = strCat(key, "\n")
 		}
 		if err := printKey(i, key); err != nil {
 			logger.Warn(err.Error())
@@ -109,7 +109,7 @@ func printKey(i int, key string) error {
 		if _, _, opts, rest, err := ssh.ParseAuthorizedKey([]byte(key)); err != nil {
 			return err
 		} else if len(rest) != 0 {
-			return errors.New(u.StrCat("SSHKey element #", strconv.Itoa(i), " has more than 1 key"))
+			return errors.New(strCat("SSHKey element #", strconv.Itoa(i), " has more than 1 key"))
 		} else {
 			fromFound := false
 			for _, opt := range opts {
@@ -119,7 +119,7 @@ func printKey(i int, key string) error {
 				}
 			}
 			if !fromFound {
-				return errors.New(u.StrCat("No host is bound to ssh key ", key))
+				return errors.New(strCat("No host is bound to ssh key ", key))
 			}
 		}
 	}
@@ -217,11 +217,11 @@ func usrFilter(user string, hosts []string, noUsrAcl bool) string {
 	if !noUsrAcl {
 		filter = aclFilter(hosts)
 	}
-	return u.StrCat("(&(objectclass=posixAccount)(uid=", user, ")", filter, ")")
+	return strCat("(&(objectclass=posixAccount)(uid=", user, ")", filter, ")")
 }
 
 func grpFilter(user string, hosts []string) string {
-	return u.StrCat("(&(objectclass=posixGroup)(memberUid=", user, ")", aclFilter(hosts), ")")
+	return strCat("(&(objectclass=posixGroup)(memberUid=", user, ")", aclFilter(hosts), ")")
 }
 
 func aclFilter(hosts []string) string {
@@ -234,5 +234,13 @@ func aclFilter(hosts []string) string {
 		filter = append(filter, ")")
 	}
 	filter = append(filter, ")")
-	return u.StrCatS(filter)
+	return strCat(filter...)
+}
+
+func strCat(list ...string) string {
+	var res strings.Builder
+	for _, s := range list {
+		res.WriteString(s)
+	}
+	return res.String()
 }
