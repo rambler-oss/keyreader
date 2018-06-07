@@ -87,13 +87,8 @@ func main() {
 		defer ldconn.Close()
 	}
 
-	sigpipe := make(chan os.Signal, 1)
-	go func(sigchan <-chan os.Signal) {
-		for range sigchan {
-			os.Exit(0)
-		}
-	}(sigpipe)
-	signal.Notify(sigpipe, syscall.SIGPIPE)
+	handleSigPipe()
+
 	for i, key := range checkUser(user, &host) {
 		if !strings.HasSuffix(key, "\n") {
 			key = strCat(key, "\n")
@@ -102,6 +97,16 @@ func main() {
 			logger.Warn(err.Error())
 		}
 	}
+}
+
+func handleSigPipe() {
+	sigpipe := make(chan os.Signal, 1)
+	go func(sigchan <-chan os.Signal) {
+		for range sigchan {
+			os.Exit(0)
+		}
+	}(sigpipe)
+	signal.Notify(sigpipe, syscall.SIGPIPE)
 }
 
 func printKey(i int, key string) error {
@@ -153,11 +158,11 @@ func checkGroup(user string, host *Host) bool {
 
 func checkUser(user string, host *Host) []string {
 	// Don't check user's acl if their group has permission
-	noUsrAcl := checkGroup(user, host)
+	noUsrACL := checkGroup(user, host)
 	usrReq := ldap.NewSearchRequest(
 		config.GetLdapUsers(),
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		usrFilter(user, host.names, noUsrAcl),
+		usrFilter(user, host.names, noUsrACL),
 		[]string{"trustModel", "accessTo", "sshPublicKey"},
 		nil,
 	)
@@ -168,7 +173,7 @@ func checkUser(user string, host *Host) []string {
 	} else if len(sr.Entries) > 1 {
 		logger.Warn("More than 1 user with uid %s, aborting", user)
 	} else if len(sr.Entries) > 0 {
-		if noUsrAcl || checkAccess(user, host, sr.Entries) {
+		if noUsrACL || checkAccess(user, host, sr.Entries) {
 			return sr.Entries[0].GetAttributeValues("sshPublicKey")
 		}
 	}
