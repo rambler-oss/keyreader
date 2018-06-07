@@ -17,7 +17,7 @@ const (
 
 type hostInterface interface {
 	inNetGroups([]string) bool
-	matchAcl(string) bool
+	matchACL(string) bool
 }
 
 // Host struct
@@ -25,7 +25,7 @@ type Host struct {
 	names []string
 }
 
-func (h Host) matchAcl(acl string) bool {
+func (h Host) matchACL(acl string) bool {
 	return u.MemberOfSlice(acl, h.names)
 }
 
@@ -68,7 +68,7 @@ func checkByHost(user string, entry *ldap.Entry, host hostInterface) bool {
 	for _, acl := range entry.GetAttributeValues("accessTo") {
 		if strings.HasPrefix(acl, "+") {
 			netgroups = append(netgroups, acl[1:])
-		} else if host.matchAcl(acl) {
+		} else if host.matchACL(acl) {
 			logger.Info("Granting access to user %s by ByHost trustmodel", user)
 			return true
 		}
