@@ -47,25 +47,26 @@ func (h Host) inNetGroups(netgroups []string) bool {
 			os.Exit(20)
 		} else {
 			for _, entry := range sr.Entries {
-				triples := entry.GetAttributeValues(netgrMember)
-				if matchHosts(netgr, triples, h.names) {
+				if matchHosts(netgr, entry.GetAttributeValues(netgrMember), h.names) {
 					return true
 				}
-				children := entry.GetAttributeValues(netgrChild)
-				if len(children) > 0 {
-					for _, child := range children {
-						if _, ok := looptest[child]; !ok {
-							logger.Warn("Detected loop on netgroup %s", netgr)
-							continue
-						}
-						nextgrps = append(nextgrps, child)
-					}
-
-				}
+				newchildren := filterLoops(netgr, entry.GetAttributeValues(netgrChild), looptest)
+				nextgrps = append(nextgrps, newchildren...)
 			}
 		}
 	}
 	return false
+}
+
+func filterLoops(netgr string, children []string, looptest map[string]bool) (res []string) {
+	for _, child := range children {
+		if _, ok := looptest[child]; !ok {
+			logger.Warn("Detected loop on netgroup %s", netgr)
+			continue
+		}
+		res = append(res, child)
+	}
+	return
 }
 
 func matchHosts(netgr string, triples []string, hosts []string) bool {
