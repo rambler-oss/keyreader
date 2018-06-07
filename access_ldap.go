@@ -48,27 +48,8 @@ func (h Host) inNetGroups(netgroups []string) bool {
 		} else {
 			for _, entry := range sr.Entries {
 				triples := entry.GetAttributeValues(netgrMember)
-				if len(triples) > 0 {
-					for _, triple := range triples {
-						if matches := ngMemberRegex.FindStringSubmatch(triple); len(matches) == 0 {
-							logger.Warn("Invalid %s triple in netgroup %s", triple, netgr)
-							continue
-						} else {
-							for _, host := range h.names {
-								if matches[1] == "-" {
-									logger.Warn("Undefined host in triple %s of netgroup %s", triple, netgr)
-									continue
-								} else if matches[1] == "" {
-									logger.Warn("Wildcard host in triple %s of netgroup %s", triple, netgr)
-									continue
-								} else if matches[1] == host {
-									logger.Info("Found host %s in netgroup %s", host, netgr)
-									return true
-								}
-								logger.Debug("No host %s in netgroup %s", host, netgr)
-							}
-						}
-					}
+				if matchHosts(netgr, triples, h.names) {
+					return true
 				}
 				children := entry.GetAttributeValues(netgrChild)
 				if len(children) > 0 {
@@ -81,6 +62,33 @@ func (h Host) inNetGroups(netgroups []string) bool {
 					}
 
 				}
+			}
+		}
+	}
+	return false
+}
+
+func matchHosts(netgr string, triples []string, hosts []string) bool {
+	if triples == nil {
+		return false
+	}
+	for _, triple := range triples {
+		if matches := ngMemberRegex.FindStringSubmatch(triple); len(matches) == 0 {
+			logger.Warn("Invalid %s triple in netgroup %s", triple, netgr)
+			continue
+		} else {
+			for _, host := range hosts {
+				if matches[1] == "-" {
+					logger.Warn("Undefined host in triple %s of netgroup %s", triple, netgr)
+					continue
+				} else if matches[1] == "" {
+					logger.Warn("Wildcard host in triple %s of netgroup %s", triple, netgr)
+					continue
+				} else if matches[1] == host {
+					logger.Info("Found host %s in netgroup %s", host, netgr)
+					return true
+				}
+				logger.Debug("No host %s in netgroup %s", host, netgr)
 			}
 		}
 	}
