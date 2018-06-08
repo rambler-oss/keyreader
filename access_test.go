@@ -16,7 +16,7 @@ func (ht HostTest) inNetGroups(_ []string) bool {
 	return false
 }
 
-func (ht HostTest) matchAcl(acl string) bool {
+func (ht HostTest) matchACL(acl string) bool {
 	return ht.hostname == acl
 }
 
