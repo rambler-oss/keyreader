@@ -24,5 +24,7 @@ How authorization works
 1. keyreader validates if found posix groups have this host in accessTo
 1. keyreader gets all netgroups which found posix groups have in accessTo
 1. keyreader checks if any netgroup has this host in members
-1. if keyreader founds granted access, it looks for user with uid same as login and print their ssh pubkeys to stdout, otherwise it does 3-5 steps, but for PosixAccount instead of PosixGroup
+1. if keyreader founds granted access, it looks for user with uid same as login 
+and print their ssh pubkeys to stdout, otherwise it does 3-5 steps, but 
+for PosixAccount instead of PosixGroup
 1. sshd reads ssh keys (if there're any) and uses them to authenticate user
