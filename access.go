@@ -52,7 +52,7 @@ func checkAccess(user string, host hostInterface, entries []*ldap.Entry) bool {
 		}
 
 		if tmodel == tmFull {
-			logger.Info("Granting access to user %s by FullAccess trustmodel", user)
+			logger.Info("Granting access to user %s by trustmodel FullAccess", user)
 			return true
 		}
 
@@ -69,12 +69,12 @@ func checkByHost(user string, entry *ldap.Entry, host hostInterface) bool {
 		if strings.HasPrefix(acl, "+") {
 			netgroups = append(netgroups, acl[1:])
 		} else if host.matchACL(acl) {
-			logger.Info("Granting access to user %s by ByHost trustmodel", user)
+			logger.Info("Granting access to user %s by trustmodel ByHost", user)
 			return true
 		}
 	}
 	if host.inNetGroups(netgroups) {
-		logger.Info("Granting access to user %s by ByHost trustmodel", user)
+		logger.Info("Granting access to user %s by trustmodel ByHost", user)
 		return true
 	}
 	return false
