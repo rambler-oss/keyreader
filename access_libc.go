@@ -31,7 +31,7 @@ func nssInNetGr(netgroup string, host, user, domain *string) bool {
 		cuser   *C.char
 		cdomain *C.char
 	)
-	logger.Debug("Checking %s for membership in %s", host, netgroup)
+	logger.Debug("Checking %s for membership in %s", *host, netgroup)
 	cnetgr := C.CString(netgroup)
 	defer C.free(unsafe.Pointer(cnetgr))
 	if host != nil {
