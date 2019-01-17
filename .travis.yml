@@ -1,18 +1,12 @@
 language: go
 
-addons:
-  code_climate:
-    repo_token: 
-      secure: "i6X9I8jhj3J134U32MvYgnOqPK1gbtJCqEDDzeyhNTjF5hQPPsV/LbVa9PiDfLC9Bm5SFBeASNTevCs6ky8uqVQRunA0j5WYyEDMzUhgXyylIAFmszikLxpXWODJG8FL0LumrhP/ix2BoqxQ3OTHDHb4u8fnd5KBzRe/f+nEH9d2qo1gEsjvsfpA2nZpmQ8urVdKgA/hHNVBU5sKFjtvafh/jOvab/5AgHatlPQed5qCVlogrTUBtklQDWxMsckM66ggNOCaaEPWT7o5ArVXZTVIMDLk159fdFQSULL2N8Ba958cb0OrvyBTILxZ6Q7uFQnqMKy1SEmNIim1hG9idWhWFNfktus7V3PmXCAvZT+JI4F0wFOtj9VbAE5TWgBlIHQdL/uC6QU7ZFkgfhozA4f2fzDBxmpzkSiTLieeki3x7iFC4kuy1IEUBsqMG83DQHnlMiHjEE607lDd18lv0NmhBDFvkA/ze4c2s9YSrlv2UMGoS4yMHgfKNlIqUrBjOABNwhyg8GgNmz0aJf+LmLBLJqnbofp1e/bMfvu4YmxprTQClMgzk7tQLanIc0nj6XrxxuQq0bm6xCE60Rl/uPk293yg4RsgExwcT+k/OZBnG5ARwlPDcmHJJtoNCGzElMpDcdPzCaIGPwD/tWRn8OEYRa5L6NiVk7fvBWyd2KU="
-
 env:
-  global:
-    - secure: "VcfD8hG18EBBtuaNetXaKEOeSl0ZTnzTkeav4xvAjCyv+BrcRqxcX1eATZaKMXcqI3KFrzQ8rVi42JbdAncIpSGI/Yy4M+XtzZAGucVuljykuX7ViDyS9dERUCNs9K4IvwuPD/hxrO9QfDKuaduvfK1aD/BiCs0avOCqjWYKvs8K5X/TMNHNXQ9LpHX/gw92Y0/X91cbhMXmeuyauzwDcpIyywAfc2mPM6UOH/7WvU5pUngFCqlQ54SZwDQN4kNqAA662qdh6Clu102wxdK+kyrtsBNNPsrU4eYa0983ZZ6oBWFeKGjlvi/2LqLbcCi/30gvlTBKLDvQHyIztyt9bmKTO1+8Eor5OjM5X9Gl/N0I+xp+98zXsbf4qgFmkT5H03tijJ1ePzVgD6Grz1MnVkrm3fx7diwQWmLvxD/Jb52JDxuFRm5dwnROZhBgy69NguzlARYxSIWZY79qptizH5HtQvBPjrqkKyX0oSNcNzOOco6k1VulmGiTNnh1gh+RCbnyqlKKacp61fBSJkhyr7XmgyAPKxl6KOb6tggUQgX8cBk4HLAKnc3SG6LAjrvfAGmNTuBZgLQDIr5EF5U2fok1EVA7ZXFbsGlc9sShAzfRW+WtwFCMMobyTpxz6m2YatFWKE3GfSGpKXy8dFHwa21q8Hq05ECpae3zhdVkQW4="
   matrix:
     - GO_TAGS=libc
     - GO_TAGS=ldap
 go:
   - "1.10"
+  - "1.11"
 
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
