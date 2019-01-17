@@ -2,31 +2,40 @@
 
 
 [[projects]]
+  digest = "1:a2c1d0e43bd3baaa071d1b9ed72c27d78169b2b269f71c105ac4ba34b1be4a39"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
+  pruneopts = "UT"
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
   version = "v1.1.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:a82818dc6caa7a9f5326b9f98e1e6b1fecbadcea9eb4d6aa45153ac0bb7982ef"
   name = "github.com/iavael/goutil"
   packages = ["."]
-  revision = "84810235380f9a10ca6f4a9196af0dac20c3e2a7"
+  pruneopts = "UT"
+  revision = "ed425db250f6d2e929d03ce00fa12d4c1a16b022"
 
 [[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
+  pruneopts = "UT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:f85e109eda8f6080877185d1c39e98dd8795e1780c08beca28304b87fd855a1c"
   name = "github.com/stretchr/testify"
   packages = ["assert"]
+  pruneopts = "UT"
   revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
   version = "v1.2.1"
 
 [[projects]]
   branch = "master"
+  digest = "1:64a734c6475127f37056dec2b325ee744777e3bd4653abc9b614199d8d311864"
   name = "golang.org/x/crypto"
   packages = [
     "curve25519",
@@ -34,31 +43,51 @@
     "ed25519/internal/edwards25519",
     "internal/chacha20",
     "poly1305",
-    "ssh"
+    "ssh",
   ]
+  pruneopts = "UT"
   revision = "b47b1587369238182299fe4dad77d05b8b461e06"
 
 [[projects]]
+  digest = "1:81e1c5cee195fca5de06e2540cb63eea727a850b7e5c213548e7f81521c97a57"
   name = "gopkg.in/asn1-ber.v1"
   packages = ["."]
+  pruneopts = "UT"
   revision = "379148ca0225df7a432012b8df0355c2a2063ac0"
   version = "v1.2"
 
 [[projects]]
+  digest = "1:93aaeb913621a3a53aaa78592c00f46d63e3bb0ea76e2d9b07327b50959a5778"
   name = "gopkg.in/ldap.v2"
   packages = ["."]
+  pruneopts = "UT"
   revision = "bb7a9ca6e4fbc2129e3db588a34bc970ffe811a9"
   version = "v2.5.1"
 
 [[projects]]
+  digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
+  pruneopts = "UT"
   revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
   version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b90698faae6552e73827aca4121482efeea1bbfa1ab8bc7585ce63d1605f7b59"
+  input-imports = [
+    "github.com/davecgh/go-spew/spew",
+    "github.com/iavael/goutil",
+    "github.com/pmezard/go-difflib/difflib",
+    "github.com/stretchr/testify/assert",
+    "golang.org/x/crypto/curve25519",
+    "golang.org/x/crypto/ed25519",
+    "golang.org/x/crypto/ed25519/internal/edwards25519",
+    "golang.org/x/crypto/poly1305",
+    "golang.org/x/crypto/ssh",
+    "gopkg.in/asn1-ber.v1",
+    "gopkg.in/ldap.v2",
+    "gopkg.in/yaml.v2",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
