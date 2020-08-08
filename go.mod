@@ -1,5 +1,7 @@
 module github.com/rambler-oss/keyreader
 
+go 1.14
+
 require (
 	github.com/iavael/goutil v0.0.0-20170207193717-84810235380f
 	github.com/stretchr/testify v1.3.0

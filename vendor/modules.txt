@@ -1,22 +1,30 @@
 # github.com/davecgh/go-spew v1.1.0
 github.com/davecgh/go-spew/spew
 # github.com/iavael/goutil v0.0.0-20170207193717-84810235380f
+## explicit
 github.com/iavael/goutil
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.3.0
+## explicit
 github.com/stretchr/testify/assert
 # golang.org/x/crypto v0.0.0-20190103213133-ff983b9c42bc
-golang.org/x/crypto/ssh
+## explicit
 golang.org/x/crypto/curve25519
 golang.org/x/crypto/ed25519
-golang.org/x/crypto/internal/chacha20
-golang.org/x/crypto/poly1305
 golang.org/x/crypto/ed25519/internal/edwards25519
+golang.org/x/crypto/internal/chacha20
 golang.org/x/crypto/internal/subtle
+golang.org/x/crypto/poly1305
+golang.org/x/crypto/ssh
+# golang.org/x/sys v0.0.0-20190116161447-11f53e031339
+## explicit
 # gopkg.in/asn1-ber.v1 v1.0.0-20170511165959-379148ca0225
+## explicit
 gopkg.in/asn1-ber.v1
 # gopkg.in/ldap.v2 v2.5.1
+## explicit
 gopkg.in/ldap.v2
 # gopkg.in/yaml.v2 v2.2.1
+## explicit
 gopkg.in/yaml.v2

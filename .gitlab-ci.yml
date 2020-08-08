@@ -8,7 +8,7 @@ before_script:
 
 test:
   type: test
-  tags: ["docker"]
+  tags: ["builder"]
   script:
     - go test -v
   only:
