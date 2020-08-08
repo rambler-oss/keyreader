@@ -1,5 +1,5 @@
 Name:		keyreader
-Version:	0.3.7
+Version:	0.3.8
 Release:	1%{?dist}
 Summary:	Rambler keyreader
 License:	LGPL3+
@@ -55,6 +55,38 @@ install -d %{buildroot}%{_sysconfdir}/rambler
 %{_datadir}/keyreader/keyreader.conf.example
 
 %changelog
+* Sat Aug 08 2020 Mariya Bondarenko
+- ref (mariya.bondarenko@rambler-co.ru)
+- fix build (mariya.bondarenko@rambler-co.ru)
+- Дебаговый логгер (mariya.bondarenko@rambler-co.ru)
+- Migrate to vgo (iavael@rambler-co.ru)
+- Fix string dereference (iavael@rambler-co.ru)
+- Update travis config (iavael@rambler-co.ru)
+- Change IDEA settings (iavael@rambler-co.ru)
+- Bump golang.org/x/crypto from `b47b158` to `ff983b9` (support@dependabot.com)
+- Bump github.com/stretchr/testify from 1.2.1 to 1.3.0 (support@dependabot.com)
+- Improve logging a bit more (iavael@rambler-co.ru)
+- Reword log message (iavael@rambler-co.ru)
+- Fix README (iavael@rambler-co.ru)
+- Fix README.md (iavael@rambler-co.ru)
+- Fix README.md (iavael@rambler-co.ru)
+- More fixes (iavael@rambler-co.ru)
+- Fix README.md (iavael@rambler-co.ru)
+- Split netgroup check function (iavael@rambler-co.ru)
+- A bit more of refactoring (iavael@rambler-co.ru)
+- Refactoring (iavael@rambler-co.ru)
+- Support only golang 1.10 (iavael@rambler-co.ru)
+- Test both libc and ldap netgroups access (iavael@rambler-co.ru)
+- Split ldap netgroups matching function (iavael@rambler-co.ru)
+- Remove tests for deprecated config versions (iavael@rambler-co.ru)
+- Migrate to strings.Builder (iavael@rambler-co.ru)
+- Remove support of old config versions (iavael@rambler-co.ru)
+- Update deps (iavael@rambler-co.ru)
+- Fix test coverage (iavael@users.noreply.github.com)
+- Use codeclimate for coverage reporting (iavael@users.noreply.github.com)
+- Update .codeclimate.yml (iavael@users.noreply.github.com)
+- Migrate vendoring to dep (iavael@rambler-co.ru)
+
 * Mon Dec 11 2017 Iavael <iavael@rambler-co.ru> 0.3.7-1
 - Use tito
 * Tue Feb 28 2017 Iavael <iavael@rambler-co.ru> - 0.3.6-1
