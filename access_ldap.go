@@ -21,6 +21,11 @@ var (
 )
 
 func (h Host) inNetGroups(netgroups []string) bool {
+	debugLog("Search host in netgroups")
+	for _, netgroup := range netgroups {
+		debugLog("Netgroup: \t%s", netgroup)
+	}
+
 	var (
 		looptest = map[string]bool{}
 		nextgrps []string
@@ -89,8 +94,8 @@ func matchHosts(netgr string, triples []string, hosts []string) bool {
 					logger.Info("Found host %s in netgroup %s", host, netgr)
 					return true
 				}
-				logger.Debug("No host %s in netgroup %s", host, netgr)
 			}
+			logger.Debug("No host in netgroup %s", netgr)
 		}
 	}
 	return false

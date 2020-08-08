@@ -19,6 +19,7 @@ import (
 
 var (
 	confpath string
+	debugOn  bool
 
 	config Config
 	logger *u.Logger
@@ -35,6 +36,7 @@ func init() {
 	}
 
 	flag.StringVar(&confpath, "config", configPath, "Path to config file")
+	flag.BoolVar(&debugOn, "debug", false, "Debug ON")
 	flag.Parse()
 }
 
@@ -49,9 +51,9 @@ func main() {
 		logger = u.NewLogger(u.NONE, nil)
 	} else {
 		defer slog.Close()
-		logger = u.NewLogger(u.INFO, slog)
+		logger = u.NewLogger(u.DEBUG, slog)
 	}
-
+	debugLog("Welcome to debug mode!")
 	if cfg, err := u.NewMultiConfig(confpath, &ConfigVer{}, selectConfig); err != nil {
 		logger.Error("Config file error: %s", err)
 		os.Exit(10)
@@ -67,6 +69,10 @@ func main() {
 		os.Exit(12)
 	} else if !u.MemberOfSlice(name, host.names) {
 		host.names = append(host.names, name)
+	}
+	debugLog("Hostnames:")
+	for _, hostname := range host.names {
+		debugLog("Hostname:\t%s", hostname)
 	}
 
 	if len(flag.Args()) < 1 {
@@ -129,10 +135,13 @@ func printKey(i int, key string) error {
 		}
 	}
 	_, err := os.Stdout.WriteString(key)
+	debugLog("Key printed!")
 	return err
 }
 
 func checkGroup(user string, host *Host) bool {
+	debugLog("Check groups permissions")
+
 	grpReq := ldap.NewSearchRequest(
 		config.GetLdapGroups(),
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
@@ -151,6 +160,8 @@ func checkGroup(user string, host *Host) bool {
 				logger.Info("Access granted to user %s by group permissions", user)
 				return true
 			}
+		} else {
+			debugLog("LDAP check user group:\tno entries")
 		}
 	}
 	return false
@@ -158,7 +169,11 @@ func checkGroup(user string, host *Host) bool {
 
 func checkUser(user string, host *Host) []string {
 	// Don't check user's acl if their group has permission
+	debugLog("Check user permissions %s", user)
+
 	noUsrACL := checkGroup(user, host)
+
+	debugLog("Will not check user's acl:\t%t", noUsrACL)
 	usrReq := ldap.NewSearchRequest(
 		config.GetLdapUsers(),
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
@@ -175,6 +190,8 @@ func checkUser(user string, host *Host) []string {
 	} else if len(sr.Entries) > 0 {
 		if noUsrACL || checkAccess(user, host, sr.Entries) {
 			return sr.Entries[0].GetAttributeValues("sshPublicKey")
+		} else {
+			debugLog("User %s has not access to %s", user, host)
 		}
 	}
 	logger.Warn("Failed to authorize user %s", user)
