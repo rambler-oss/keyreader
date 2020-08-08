@@ -27,7 +27,12 @@ var (
 	ldconn ldap.Client
 )
 
-func init() {
+func main() {
+	var (
+		host Host
+		user string
+	)
+
 	flag.Usage = func() {
 		os.Stderr.WriteString("Usage of ")
 		os.Stderr.WriteString(os.Args[0])
@@ -38,13 +43,6 @@ func init() {
 	flag.StringVar(&confpath, "config", configPath, "Path to config file")
 	flag.BoolVar(&debugOn, "debug", false, "Debug ON")
 	flag.Parse()
-}
-
-func main() {
-	var (
-		host Host
-		user string
-	)
 
 	if slog, err := syslog.New(syslog.LOG_DAEMON, "keyreader"); err != nil {
 		log.Printf("Failed to create new syslog: %s\n", err)
