@@ -14,7 +14,10 @@ import (
 )
 
 func (h Host) inNetGroups(netgroups []string) bool {
-	debugLog("Search host in netgroups: \t%s", netgroups)
+	debugLog("Search host in netgroups")
+	for _, netgroup := range netgroups {
+		debugLog("Netgroup: \t%s", netgroup)
+	}
 	for _, netgroup := range netgroups {
 		for _, host := range h.names {
 			if nssInNetGr(netgroup, &host, nil, nil) {
