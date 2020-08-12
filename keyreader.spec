@@ -1,5 +1,5 @@
 Name:		keyreader
-Version:	0.3.8
+Version:	0.3.9
 Release:	1%{?dist}
 Summary:	Rambler keyreader
 License:	LGPL3+
@@ -55,6 +55,12 @@ install -d %{buildroot}%{_sysconfdir}/rambler
 %{_datadir}/keyreader/keyreader.conf.example
 
 %changelog
+* Wed Aug 12 2020 Unknown name 0.3.9-1
+- add hostlist debug in access_libc (mariya.bondarenko@rambler-co.ru)
+
+* Wed Aug 12 2020 Unknown name
+- add hostlist debug in access_libc (mariya.bondarenko@rambler-co.ru)
+
 * Sat Aug 08 2020 Mariya Bondarenko
 - ref (mariya.bondarenko@rambler-co.ru)
 - fix build (mariya.bondarenko@rambler-co.ru)
