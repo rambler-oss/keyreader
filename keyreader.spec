@@ -10,12 +10,6 @@ Source0:	%{name}-%{version}.tar.gz
 BuildRequires:	golang >= 1.5
 BuildRequires:	git
 
-%if 0%{?fedora} >= 21
-# pull in golang libraries by explicit import path, inside the meta golang()
-BuildRequires:	golang(gopkg.in/yaml.v2)
-BuildRequires:	golang(github.com/go-ldap/ldap)
-%endif
-
 %description
 
 %prep
