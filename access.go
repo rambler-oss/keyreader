@@ -57,11 +57,10 @@ func checkAccess(user string, host hostInterface, entries []*ldap.Entry) bool {
 			case "byhost":
 				debugLog("TrustModel is 'ByHost'")
 				tmodel = tmHost
-			default:
-				logger.Warn("Unknown trustmodel \"%s\" in DN %s, assuming \"ByHost\"", tm[0], entry.DN)
-			}
 			case "deny":
 				tmodel = tmDeny
+			default:
+				logger.Warn("Unknown trustmodel \"%s\" in DN %s, assuming \"ByHost\"", tm[0], entry.DN)
 			}
 		} else {
 			debugLog("Unknown trustmodel in DN %s, assuming \"ByHost\"", entry.DN)
