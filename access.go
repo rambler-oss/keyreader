@@ -13,6 +13,7 @@ type TrustModel uint8
 const (
 	tmFull TrustModel = iota
 	tmHost
+	tmDeny
 )
 
 type hostInterface interface {
@@ -56,6 +57,8 @@ func checkAccess(user string, host hostInterface, entries []*ldap.Entry) bool {
 			case "byhost":
 				debugLog("TrustModel is 'ByHost'")
 				tmodel = tmHost
+			case "deny":
+				tmodel = tmDeny
 			default:
 				logger.Warn("Unknown trustmodel \"%s\" in DN %s, assuming \"ByHost\"", tm[0], entry.DN)
 			}
@@ -64,6 +67,10 @@ func checkAccess(user string, host hostInterface, entries []*ldap.Entry) bool {
 			tmodel = tmHost
 		}
 
+		if tmodel == tmDeny {
+			logger.Info("User %s has 'deny' trustmodel", user)
+			return false
+		}
 		if tmodel == tmFull {
 			logger.Info("Granting access to user %s by trustmodel \"FullAccess\"", user)
 			return true
