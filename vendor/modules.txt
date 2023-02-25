@@ -17,7 +17,7 @@ golang.org/x/crypto/internal/chacha20
 golang.org/x/crypto/internal/subtle
 golang.org/x/crypto/poly1305
 golang.org/x/crypto/ssh
-# golang.org/x/sys v0.0.0-20190116161447-11f53e031339
+# golang.org/x/sys v0.1.0
 ## explicit
 # gopkg.in/asn1-ber.v1 v1.0.0-20170511165959-379148ca0225
 ## explicit
