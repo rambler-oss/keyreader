@@ -8,17 +8,19 @@ github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.7.0
 ## explicit
 github.com/stretchr/testify/assert
-# golang.org/x/crypto v0.0.0-20190103213133-ff983b9c42bc
+# golang.org/x/crypto v0.8.0
 ## explicit
+golang.org/x/crypto/blowfish
+golang.org/x/crypto/chacha20
 golang.org/x/crypto/curve25519
+golang.org/x/crypto/curve25519/internal/field
 golang.org/x/crypto/ed25519
-golang.org/x/crypto/ed25519/internal/edwards25519
-golang.org/x/crypto/internal/chacha20
-golang.org/x/crypto/internal/subtle
-golang.org/x/crypto/poly1305
+golang.org/x/crypto/internal/alias
+golang.org/x/crypto/internal/poly1305
 golang.org/x/crypto/ssh
-# golang.org/x/sys v0.0.0-20190116161447-11f53e031339
-## explicit
+golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
+# golang.org/x/sys v0.7.0
+golang.org/x/sys/cpu
 # gopkg.in/asn1-ber.v1 v1.0.0-20170511165959-379148ca0225
 ## explicit
 gopkg.in/asn1-ber.v1
